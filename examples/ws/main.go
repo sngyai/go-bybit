@@ -22,27 +22,28 @@ func proxyClient(proxyURL string) websocket.Dialer {
 }
 
 func main() {
-	//client := proxyClient("socks5://127.0.0.1:1086")
-	wsClient := ws.NewWebsocketClient()
-	//.WithDialer(&client)
-	//err := exampleV1(wsClient)
+	client := proxyClient("socks5://127.0.0.1:1086")
+	wsClient := ws.NewWebsocketClient().WithDialer(&client)
+	//.WithBaseURL(ws.TestWebsocketBaseURL)
+
+	//err := v1Multiple(wsClient)
 	//if err != nil {
 	//	return
 	//}
 
-	err := exampleV5(wsClient)
+	err := v5Single(wsClient)
 	if err != nil {
 		return
 	}
 }
 
-func exampleV1(wsClient *ws.WebSocketClient) error {
+func v1Single(wsClient *ws.WebSocketClient) error {
 	svc, err := wsv1.NewWSClient(wsClient).PublicV1()
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	_, err = svc.SubscribeTrade(bybit.SymbolSpotBTCUSDT, func(response wsv1.SpotWebsocketV1PublicV1TradeResponse) error {
+	_, err = svc.SubscribeTrade(bybit.SymbolSpotBTCUSDT, func(response wsv1.PublicV1TradeResponse) error {
 		fmt.Printf("v1 recv: %v\n", response)
 		return nil
 	})
@@ -51,28 +52,128 @@ func exampleV1(wsClient *ws.WebSocketClient) error {
 		return err
 	}
 	svc.Start(context.Background())
+	return nil
+}
+
+func v1Multiple(wsClient *ws.WebSocketClient) error {
+	var executors []ws.WebsocketExecutor
+	svcRoot := wsv1.NewWSClient(wsClient)
+	{
+		svc, err := svcRoot.PublicV1()
+		if err != nil {
+			return err
+		}
+		_, err = svc.SubscribeTrade(bybit.SymbolSpotBTCUSDT, func(response wsv1.PublicV1TradeResponse) error {
+			fmt.Printf("v1 recv bybit.SymbolSpotBTCUSDT1: %v\n", response)
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		executors = append(executors, svc)
+	}
+	{
+		svc, err := svcRoot.PublicV2()
+		if err != nil {
+			return err
+		}
+		_, err = svc.SubscribeTrade(bybit.SymbolSpotBTCUSDT, func(response wsv1.PublicV2TradeResponse) error {
+			fmt.Printf("v1 recv bybit.SymbolSpotBTCUSDT2: %v\n", response)
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		executors = append(executors, svc)
+	}
+
+	wsClient.Start(context.Background(), executors)
 
 	return nil
 }
 
-func exampleV5(wsClient *ws.WebSocketClient) error {
+func v5Single(wsClient *ws.WebSocketClient) error {
 	svc, err := wsv5.NewWSClient(wsClient).Public(bybit.CategoryV5Spot)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	_, err = svc.SubscribeOrderBook(wsv5.PublicOrderBookParamKey{
-		Depth:  5,
+	//_, err = svc.SubscribeTickers(
+	//	wsv5.PublicTickersParamKey{
+	//		Symbol: bybit.SymbolV5BTCUSDT,
+	//	},
+	//	func(response wsv5.PublicTickersResponse) error {
+	//		fmt.Printf("v5 recv ticker: %v\n", response)
+	//		return nil
+	//	})
+	_, err = svc.SubscribeTickers(wsv5.PublicTickersParamKey{
 		Symbol: bybit.SymbolV5BTCUSDT,
 	},
-		func(response wsv5.PublicOrderBookResponse) error {
-			fmt.Printf("v5 recv: %v\n", response)
+		func(response wsv5.PublicTickersResponse) error {
+			fmt.Printf("v5 recv tickers: %v\n", response)
 			return nil
 		})
+	//_, err = svc.SubscribeOrderBook(wsv5.PublicOrderBookParamKey{
+	//	Depth:  50,
+	//	Symbol: bybit.SymbolV5BTCUSDT,
+	//},
+	//	func(response wsv5.PublicOrderBookResponse) error {
+	//		fmt.Printf("v5 recv orderbook: %v\n", response)
+	//		return nil
+	//	})
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	svc.Start(context.Background(), nil)
+
+	errHandler := func(isWebsocketClosed bool, err error) {
+		fmt.Printf("handle ws failed, isWebsocketClosed: %b, err: %v", isWebsocketClosed, err)
+	}
+	svc.Start(context.Background(), errHandler)
+	return nil
+}
+
+func v5Multiple(wsClient *ws.WebSocketClient) error {
+	var executors []ws.WebsocketExecutor
+	svcRoot := wsv5.NewWSClient(wsClient)
+	{
+		svc, err := svcRoot.Public(bybit.CategoryV5Spot)
+		if err != nil {
+			return err
+		}
+		_, err = svc.SubscribeTickers(
+			wsv5.PublicTickersParamKey{
+				Symbol: bybit.SymbolV5BTCUSDT,
+			},
+			func(response wsv5.PublicTickersResponse) error {
+				fmt.Printf("v5 recv ticker: %v\n", response)
+				return nil
+			})
+		if err != nil {
+			return err
+		}
+		executors = append(executors, svc)
+	}
+	{
+		svc, err := svcRoot.Public(bybit.CategoryV5Spot)
+		if err != nil {
+			return err
+		}
+		_, err = svc.SubscribeOrderBook(wsv5.PublicOrderBookParamKey{
+			Depth:  50,
+			Symbol: bybit.SymbolV5BTCUSDT,
+		},
+			func(response wsv5.PublicOrderBookResponse) error {
+				fmt.Printf("v5 recv orderbook: %v\n", response)
+				return nil
+			})
+		if err != nil {
+			return err
+		}
+		executors = append(executors, svc)
+	}
+
+	wsClient.Start(context.Background(), executors)
+
 	return nil
 }

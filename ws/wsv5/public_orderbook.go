@@ -45,7 +45,7 @@ func (s *PublicService) SubscribeOrderBook(
 		if err != nil {
 			return err
 		}
-		if err := s.connection.WriteMessage(websocket.TextMessage, []byte(buf)); err != nil {
+		if err := s.connection.WriteMessage(websocket.TextMessage, buf); err != nil {
 			return err
 		}
 		s.removeParamOrderBookFunc(key)

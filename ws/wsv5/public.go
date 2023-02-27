@@ -3,6 +3,7 @@ package wsv5
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -25,6 +26,10 @@ type PublicServiceI interface {
 		PublicOrderBookParamKey,
 		func(PublicOrderBookResponse) error,
 	) (func() error, error)
+	SubscribeTickers(
+		key PublicTickersParamKey,
+		f func(PublicTickersResponse) error,
+	) (func() error, error)
 }
 
 // PublicService :
@@ -33,6 +38,7 @@ type PublicService struct {
 	connection *websocket.Conn
 
 	paramOrderBookMap map[PublicOrderBookParamKey]func(PublicOrderBookResponse) error
+	paramTickersMap   map[PublicTickersParamKey]func(PublicTickersResponse) error
 }
 
 const (
@@ -51,6 +57,7 @@ type PublicTopic string
 const (
 	// PublicTopicOrderBook :
 	PublicTopicOrderBook = "orderbook"
+	PublicTopicTickers   = "tickers"
 )
 
 // judgeTopic :
@@ -63,6 +70,10 @@ func (s *PublicService) judgeTopic(respBody []byte) (PublicTopic, error) {
 		switch {
 		case strings.Contains(topic, "orderbook"):
 			return PublicTopicOrderBook, nil
+		case strings.Contains(topic, "tickers"):
+			return PublicTopicTickers, nil
+		default:
+			return PublicTopic(topic), nil
 		}
 	}
 	return "", nil
@@ -150,6 +161,23 @@ func (s *PublicService) Run() error {
 		if err := f(resp); err != nil {
 			return err
 		}
+	case PublicTopicTickers:
+		var resp PublicTickersResponse
+		if err := s.parseResponse(message, &resp); err != nil {
+			return err
+		}
+		f, err := s.retrieveTickersFunc(resp.Key())
+		if err != nil {
+			return err
+		}
+		if err := f(resp); err != nil {
+			return err
+		}
+	default:
+		if topic != "" {
+			return fmt.Errorf("cannot recognize topic: %s", topic)
+		}
+
 	}
 	return nil
 }

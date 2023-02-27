@@ -1,7 +1,6 @@
 package wsv1
 
 import (
-	"github.com/gorilla/websocket"
 	"github.com/sngyai/go-bybit/ws"
 )
 
@@ -16,41 +15,41 @@ func NewWSClient(c *ws.WebSocketClient) *WebsocketClientV1 {
 }
 
 // PublicV1 :
-func (s *WebsocketClientV1) PublicV1() (*SpotWebsocketV1PublicV1Service, error) {
-	url := s.Client.BaseURL + SpotWebsocketV1PublicV1Path
-	c, _, err := websocket.DefaultDialer.Dial(url, nil)
+func (s *WebsocketClientV1) PublicV1() (*PublicV1Service, error) {
+	url := s.Client.BaseURL + PublicV1Path
+	c, _, err := s.Client.Dialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &SpotWebsocketV1PublicV1Service{
+	return &PublicV1Service{
 		connection:    c,
-		paramTradeMap: map[SpotWebsocketV1PublicV1TradeParamKey]func(SpotWebsocketV1PublicV1TradeResponse) error{},
+		paramTradeMap: map[PublicV1TradeParamKey]func(PublicV1TradeResponse) error{},
 	}, nil
 }
 
 // PublicV2 :
-func (s *WebsocketClientV1) PublicV2() (*SpotWebsocketV1PublicV2Service, error) {
-	url := s.Client.BaseURL + SpotWebsocketV1PublicV2Path
-	c, _, err := websocket.DefaultDialer.Dial(url, nil)
+func (s *WebsocketClientV1) PublicV2() (*PublicV2Service, error) {
+	url := s.Client.BaseURL + PublicV2Path
+	c, _, err := s.Client.Dialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &SpotWebsocketV1PublicV2Service{
+	return &PublicV2Service{
 		connection:    c,
-		paramTradeMap: map[SpotWebsocketV1PublicV2TradeParamKey]func(SpotWebsocketV1PublicV2TradeResponse) error{},
+		paramTradeMap: map[PublicV2TradeParamKey]func(PublicV2TradeResponse) error{},
 	}, nil
 }
 
 // Private :
-func (s *WebsocketClientV1) Private() (*SpotWebsocketV1PrivateService, error) {
-	url := s.Client.BaseURL + SpotWebsocketV1PrivatePath
-	c, _, err := websocket.DefaultDialer.Dial(url, nil)
+func (s *WebsocketClientV1) Private() (*PrivateService, error) {
+	url := s.Client.BaseURL + PrivatePath
+	c, _, err := s.Client.Dialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &SpotWebsocketV1PrivateService{
+	return &PrivateService{
 		client:                      s.Client,
 		connection:                  c,
-		paramOutboundAccountInfoMap: map[SpotWebsocketV1PrivateParamKey]func(SpotWebsocketV1PrivateOutboundAccountInfoResponse) error{},
+		paramOutboundAccountInfoMap: map[PrivateParamKey]func(PrivateOutboundAccountInfoResponse) error{},
 	}, nil
 }

@@ -14,58 +14,58 @@ import (
 	"github.com/sngyai/go-bybit/ws"
 )
 
-// SpotWebsocketV1PublicV2Service :
-type SpotWebsocketV1PublicV2Service struct {
+// PublicV2Service :
+type PublicV2Service struct {
 	connection *websocket.Conn
 
-	paramTradeMap map[SpotWebsocketV1PublicV2TradeParamKey]func(SpotWebsocketV1PublicV2TradeResponse) error
+	paramTradeMap map[PublicV2TradeParamKey]func(PublicV2TradeResponse) error
 }
 
 const (
-	// SpotWebsocketV1PublicV2Path :
-	SpotWebsocketV1PublicV2Path = "/spot/quote/ws/v2"
+	// PublicV2Path :
+	PublicV2Path = "/spot/quote/ws/v2"
 )
 
-// SpotWebsocketV1PublicV2Event :
-type SpotWebsocketV1PublicV2Event string
+// PublicV2Event :
+type PublicV2Event string
 
 const (
-	// SpotWebsocketV1PublicV2EventSubscribe :
-	SpotWebsocketV1PublicV2EventSubscribe = "sub"
-	// SpotWebsocketV1PublicV2EventUnsubscribe :
-	SpotWebsocketV1PublicV2EventUnsubscribe = "cancel"
+	// PublicV2EventSubscribe :
+	PublicV2EventSubscribe = "sub"
+	// PublicV2EventUnsubscribe :
+	PublicV2EventUnsubscribe = "cancel"
 )
 
-// SpotWebsocketV1PublicV2Topic :
-type SpotWebsocketV1PublicV2Topic string
+// PublicV2Topic :
+type PublicV2Topic string
 
 const (
-	// SpotWebsocketV1PublicV2TopicTrade :
-	SpotWebsocketV1PublicV2TopicTrade = SpotWebsocketV1PublicV2Topic("trade")
+	// PublicV2TopicTrade :
+	PublicV2TopicTrade = PublicV2Topic("trade")
 )
 
-// SpotWebsocketV1PublicV2TradeParamKey :
-type SpotWebsocketV1PublicV2TradeParamKey struct {
+// PublicV2TradeParamKey :
+type PublicV2TradeParamKey struct {
 	Symbol bybit.SymbolSpot
-	Topic  SpotWebsocketV1PublicV2Topic
+	Topic  PublicV2Topic
 }
 
-// SpotWebsocketV1PublicV2TradeResponse :
-type SpotWebsocketV1PublicV2TradeResponse struct {
-	Topic  SpotWebsocketV1PublicV2Topic               `json:"topic"`
-	Params SpotWebsocketV1PublicV2TradeResponseParams `json:"params"`
-	Data   SpotWebsocketV1PublicV2TradeContent        `json:"data"`
+// PublicV2TradeResponse :
+type PublicV2TradeResponse struct {
+	Topic  PublicV2Topic               `json:"topic"`
+	Params PublicV2TradeResponseParams `json:"params"`
+	Data   PublicV2TradeContent        `json:"data"`
 }
 
-// SpotWebsocketV1PublicV2TradeResponseParams :
-type SpotWebsocketV1PublicV2TradeResponseParams struct {
+// PublicV2TradeResponseParams :
+type PublicV2TradeResponseParams struct {
 	Symbol     bybit.SymbolSpot `json:"symbol"`
 	SymbolName string           `json:"symbolName"`
 	Binary     string           `json:"binary"`
 }
 
-// SpotWebsocketV1PublicV2TradeContent :
-type SpotWebsocketV1PublicV2TradeContent struct {
+// PublicV2TradeContent :
+type PublicV2TradeContent struct {
 	TradeID        string `json:"v"`
 	Timestamp      int    `json:"t"`
 	Price          string `json:"p"`
@@ -74,36 +74,36 @@ type SpotWebsocketV1PublicV2TradeContent struct {
 }
 
 // Key :
-func (p *SpotWebsocketV1PublicV2TradeResponse) Key() SpotWebsocketV1PublicV2TradeParamKey {
-	return SpotWebsocketV1PublicV2TradeParamKey{
+func (p *PublicV2TradeResponse) Key() PublicV2TradeParamKey {
+	return PublicV2TradeParamKey{
 		Symbol: p.Params.Symbol,
 		Topic:  p.Topic,
 	}
 }
 
-// SpotWebsocketV1PublicV2TradeParamChild :
-type SpotWebsocketV1PublicV2TradeParamChild struct {
+// PublicV2TradeParamChild :
+type PublicV2TradeParamChild struct {
 	Symbol bybit.SymbolSpot `json:"symbol"`
 	Binary bool             `json:"binary"`
 }
 
-// SpotWebsocketV1PublicV2TradeParam :
-type SpotWebsocketV1PublicV2TradeParam struct {
-	Topic  SpotWebsocketV1PublicV2Topic           `json:"topic"`
-	Event  SpotWebsocketV1PublicV2Event           `json:"event"`
-	Params SpotWebsocketV1PublicV2TradeParamChild `json:"params"`
+// PublicV2TradeParam :
+type PublicV2TradeParam struct {
+	Topic  PublicV2Topic           `json:"topic"`
+	Event  PublicV2Event           `json:"event"`
+	Params PublicV2TradeParamChild `json:"params"`
 }
 
 // Key :
-func (p *SpotWebsocketV1PublicV2TradeParam) Key() SpotWebsocketV1PublicV2TradeParamKey {
-	return SpotWebsocketV1PublicV2TradeParamKey{
+func (p *PublicV2TradeParam) Key() PublicV2TradeParamKey {
+	return PublicV2TradeParamKey{
 		Symbol: p.Params.Symbol,
 		Topic:  p.Topic,
 	}
 }
 
 // addParamTradeFunc :
-func (s *SpotWebsocketV1PublicV2Service) addParamTradeFunc(param SpotWebsocketV1PublicV2TradeParamKey, f func(SpotWebsocketV1PublicV2TradeResponse) error) error {
+func (s *PublicV2Service) addParamTradeFunc(param PublicV2TradeParamKey, f func(PublicV2TradeResponse) error) error {
 	if _, exist := s.paramTradeMap[param]; exist {
 		return errors.New("already registered for this param")
 	}
@@ -112,12 +112,12 @@ func (s *SpotWebsocketV1PublicV2Service) addParamTradeFunc(param SpotWebsocketV1
 }
 
 // removeParamTradeFunc :
-func (s *SpotWebsocketV1PublicV2Service) removeParamTradeFunc(key SpotWebsocketV1PublicV2TradeParamKey) {
+func (s *PublicV2Service) removeParamTradeFunc(key PublicV2TradeParamKey) {
 	delete(s.paramTradeMap, key)
 }
 
 // retrieveTradeFunc :
-func (s *SpotWebsocketV1PublicV2Service) retrieveTradeFunc(key SpotWebsocketV1PublicV2TradeParamKey) (func(SpotWebsocketV1PublicV2TradeResponse) error, error) {
+func (s *PublicV2Service) retrieveTradeFunc(key PublicV2TradeParamKey) (func(PublicV2TradeResponse) error, error) {
 	f, exist := s.paramTradeMap[key]
 	if !exist {
 		return nil, errors.New("func not found")
@@ -126,22 +126,22 @@ func (s *SpotWebsocketV1PublicV2Service) retrieveTradeFunc(key SpotWebsocketV1Pu
 }
 
 // judgeTopic :
-func (s *SpotWebsocketV1PublicV2Service) judgeTopic(respBody []byte) (SpotWebsocketV1PublicV2Topic, error) {
+func (s *PublicV2Service) judgeTopic(respBody []byte) (PublicV2Topic, error) {
 	result := struct {
-		Topic SpotWebsocketV1PublicV2Topic `json:"topic"`
-		Event SpotWebsocketV1PublicV2Event `json:"event"`
+		Topic PublicV2Topic `json:"topic"`
+		Event PublicV2Event `json:"event"`
 	}{}
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return "", err
 	}
-	if result.Event == SpotWebsocketV1PublicV2EventSubscribe {
+	if result.Event == PublicV2EventSubscribe {
 		return "", nil
 	}
 	return result.Topic, nil
 }
 
 // parseResponse :
-func (s *SpotWebsocketV1PublicV2Service) parseResponse(respBody []byte, response interface{}) error {
+func (s *PublicV2Service) parseResponse(respBody []byte, response interface{}) error {
 	if err := json.Unmarshal(respBody, &response); err != nil {
 		return err
 	}
@@ -149,11 +149,11 @@ func (s *SpotWebsocketV1PublicV2Service) parseResponse(respBody []byte, response
 }
 
 // SubscribeTrade :
-func (s *SpotWebsocketV1PublicV2Service) SubscribeTrade(symbol bybit.SymbolSpot, f func(response SpotWebsocketV1PublicV2TradeResponse) error) (func() error, error) {
-	param := SpotWebsocketV1PublicV2TradeParam{
-		Topic: SpotWebsocketV1PublicV2TopicTrade,
-		Event: SpotWebsocketV1PublicV2EventSubscribe,
-		Params: SpotWebsocketV1PublicV2TradeParamChild{
+func (s *PublicV2Service) SubscribeTrade(symbol bybit.SymbolSpot, f func(response PublicV2TradeResponse) error) (func() error, error) {
+	param := PublicV2TradeParam{
+		Topic: PublicV2TopicTrade,
+		Event: PublicV2EventSubscribe,
+		Params: PublicV2TradeParamChild{
 			Binary: false,
 			Symbol: symbol,
 		},
@@ -170,7 +170,7 @@ func (s *SpotWebsocketV1PublicV2Service) SubscribeTrade(symbol bybit.SymbolSpot,
 	}
 
 	return func() error {
-		param.Event = SpotWebsocketV1PublicV2EventUnsubscribe
+		param.Event = PublicV2EventUnsubscribe
 		buf, err := json.Marshal(param)
 		if err != nil {
 			return err
@@ -184,7 +184,7 @@ func (s *SpotWebsocketV1PublicV2Service) SubscribeTrade(symbol bybit.SymbolSpot,
 }
 
 // Start :
-func (s *SpotWebsocketV1PublicV2Service) Start(ctx context.Context) {
+func (s *PublicV2Service) Start(ctx context.Context) {
 	done := make(chan struct{})
 
 	go func() {
@@ -230,7 +230,7 @@ func (s *SpotWebsocketV1PublicV2Service) Start(ctx context.Context) {
 }
 
 // Run :
-func (s *SpotWebsocketV1PublicV2Service) Run() error {
+func (s *PublicV2Service) Run() error {
 	_, message, err := s.connection.ReadMessage()
 	if err != nil {
 		return err
@@ -241,8 +241,8 @@ func (s *SpotWebsocketV1PublicV2Service) Run() error {
 		return err
 	}
 	switch topic {
-	case SpotWebsocketV1PublicV2TopicTrade:
-		var resp SpotWebsocketV1PublicV2TradeResponse
+	case PublicV2TopicTrade:
+		var resp PublicV2TradeResponse
 		if err := s.parseResponse(message, &resp); err != nil {
 			return err
 		}
@@ -258,7 +258,7 @@ func (s *SpotWebsocketV1PublicV2Service) Run() error {
 }
 
 // Ping :
-func (s *SpotWebsocketV1PublicV2Service) Ping() error {
+func (s *PublicV2Service) Ping() error {
 	if err := s.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
 		return err
 	}
@@ -266,7 +266,7 @@ func (s *SpotWebsocketV1PublicV2Service) Ping() error {
 }
 
 // Close :
-func (s *SpotWebsocketV1PublicV2Service) Close() error {
+func (s *PublicV2Service) Close() error {
 	if err := s.connection.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "")); err != nil {
 		return err
 	}

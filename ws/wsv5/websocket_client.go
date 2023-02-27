@@ -1,7 +1,6 @@
 package wsv5
 
 import (
-	"github.com/gorilla/websocket"
 	"github.com/sngyai/go-bybit"
 	"github.com/sngyai/go-bybit/ws"
 )
@@ -25,7 +24,7 @@ type V5WebsocketServiceI interface {
 // Public :
 func (s *WebsocketClientV5) Public(category bybit.CategoryV5) (PublicServiceI, error) {
 	url := s.Client.BaseURL + PublicPathFor(category)
-	c, _, err := websocket.DefaultDialer.Dial(url, nil)
+	c, _, err := s.Client.Dialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -33,13 +32,14 @@ func (s *WebsocketClientV5) Public(category bybit.CategoryV5) (PublicServiceI, e
 		client:            s.Client,
 		connection:        c,
 		paramOrderBookMap: map[PublicOrderBookParamKey]func(PublicOrderBookResponse) error{},
+		paramTickersMap:   map[PublicTickersParamKey]func(PublicTickersResponse) error{},
 	}, nil
 }
 
 // Private :
 func (s *WebsocketClientV5) Private() (PrivateServiceI, error) {
 	url := s.Client.BaseURL + PrivatePath
-	c, _, err := websocket.DefaultDialer.Dial(url, nil)
+	c, _, err := s.Client.Dialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}

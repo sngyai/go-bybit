@@ -13,56 +13,56 @@ import (
 	"github.com/sngyai/go-bybit/ws"
 )
 
-// SpotWebsocketV1PrivateService :
-type SpotWebsocketV1PrivateService struct {
+// PrivateService :
+type PrivateService struct {
 	client     *ws.WebSocketClient
 	connection *websocket.Conn
 
-	paramOutboundAccountInfoMap map[SpotWebsocketV1PrivateParamKey]func(SpotWebsocketV1PrivateOutboundAccountInfoResponse) error
+	paramOutboundAccountInfoMap map[PrivateParamKey]func(PrivateOutboundAccountInfoResponse) error
 }
 
 const (
-	// SpotWebsocketV1PrivatePath :
-	SpotWebsocketV1PrivatePath = "/spot/ws"
+	// PrivatePath :
+	PrivatePath = "/spot/ws"
 )
 
-// SpotWebsocketV1PrivateEventType :
-type SpotWebsocketV1PrivateEventType string
+// PrivateEventType :
+type PrivateEventType string
 
 const (
-	// SpotWebsocketV1PrivateEventTypeOutboundAccountInfo :
-	SpotWebsocketV1PrivateEventTypeOutboundAccountInfo = "outboundAccountInfo"
+	// OutboundAccountInfo :
+	OutboundAccountInfo = "outboundAccountInfo"
 )
 
-// SpotWebsocketV1PrivateParamKey :
-type SpotWebsocketV1PrivateParamKey struct {
-	EventType SpotWebsocketV1PrivateEventType
+// PrivateParamKey :
+type PrivateParamKey struct {
+	EventType PrivateEventType
 }
 
-// SpotWebsocketV1PrivateOutboundAccountInfoResponse :
-type SpotWebsocketV1PrivateOutboundAccountInfoResponse struct {
-	Content SpotWebsocketV1PrivateOutboundAccountInfoResponseContent
+// PrivateOutboundAccountInfoResponse :
+type PrivateOutboundAccountInfoResponse struct {
+	Content PrivateOutboundAccountInfoResponseContent
 }
 
-// SpotWebsocketV1PrivateOutboundAccountInfoResponseContent :
-type SpotWebsocketV1PrivateOutboundAccountInfoResponseContent struct {
-	EventType            SpotWebsocketV1PrivateEventType                                        `json:"e"`
-	Timestamp            string                                                                 `json:"E"`
-	AllowTrade           bool                                                                   `json:"T"`
-	AllowWithdraw        bool                                                                   `json:"W"`
-	AllowWDeposit        bool                                                                   `json:"D"`
-	WalletBalanceChanges []SpotWebsocketV1PrivateOutboundAccountInfoResponseWalletBalanceChange `json:"B"`
+// PrivateOutboundAccountInfoResponseContent :
+type PrivateOutboundAccountInfoResponseContent struct {
+	EventType            PrivateEventType      `json:"e"`
+	Timestamp            string                `json:"E"`
+	AllowTrade           bool                  `json:"T"`
+	AllowWithdraw        bool                  `json:"W"`
+	AllowWDeposit        bool                  `json:"D"`
+	WalletBalanceChanges []WalletBalanceChange `json:"B"`
 }
 
-// SpotWebsocketV1PrivateOutboundAccountInfoResponseWalletBalanceChange :
-type SpotWebsocketV1PrivateOutboundAccountInfoResponseWalletBalanceChange struct {
+// WalletBalanceChange :
+type WalletBalanceChange struct {
 	SymbolName       string `json:"a"`
 	AvailableBalance string `json:"f"`
 	ReservedBalance  string `json:"l"`
 }
 
 // UnmarshalJSON :
-func (r *SpotWebsocketV1PrivateOutboundAccountInfoResponse) UnmarshalJSON(data []byte) error {
+func (r *PrivateOutboundAccountInfoResponse) UnmarshalJSON(data []byte) error {
 	parsedArrayData := []map[string]interface{}{}
 	if err := json.Unmarshal(data, &parsedArrayData); err != nil {
 		return err
@@ -81,19 +81,19 @@ func (r *SpotWebsocketV1PrivateOutboundAccountInfoResponse) UnmarshalJSON(data [
 }
 
 // MarshalJSON :
-func (r *SpotWebsocketV1PrivateOutboundAccountInfoResponse) MarshalJSON() ([]byte, error) {
+func (r *PrivateOutboundAccountInfoResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(r.Content)
 }
 
 // Key :
-func (r *SpotWebsocketV1PrivateOutboundAccountInfoResponse) Key() SpotWebsocketV1PrivateParamKey {
-	return SpotWebsocketV1PrivateParamKey{
+func (r *PrivateOutboundAccountInfoResponse) Key() PrivateParamKey {
+	return PrivateParamKey{
 		EventType: r.Content.EventType,
 	}
 }
 
 // addParamOutboundAccountInfoFunc :
-func (s *SpotWebsocketV1PrivateService) addParamOutboundAccountInfoFunc(param SpotWebsocketV1PrivateParamKey, f func(SpotWebsocketV1PrivateOutboundAccountInfoResponse) error) error {
+func (s *PrivateService) addParamOutboundAccountInfoFunc(param PrivateParamKey, f func(PrivateOutboundAccountInfoResponse) error) error {
 	if _, exist := s.paramOutboundAccountInfoMap[param]; exist {
 		return errors.New("already registered for this param")
 	}
@@ -102,7 +102,7 @@ func (s *SpotWebsocketV1PrivateService) addParamOutboundAccountInfoFunc(param Sp
 }
 
 // retrieveOutboundAccountInfoFunc :
-func (s *SpotWebsocketV1PrivateService) retrieveOutboundAccountInfoFunc(key SpotWebsocketV1PrivateParamKey) (func(SpotWebsocketV1PrivateOutboundAccountInfoResponse) error, error) {
+func (s *PrivateService) retrieveOutboundAccountInfoFunc(key PrivateParamKey) (func(PrivateOutboundAccountInfoResponse) error, error) {
 	f, exist := s.paramOutboundAccountInfoMap[key]
 	if !exist {
 		return nil, errors.New("func not found")
@@ -111,14 +111,14 @@ func (s *SpotWebsocketV1PrivateService) retrieveOutboundAccountInfoFunc(key Spot
 }
 
 type spotWebsocketV1PrivateEventJudge struct {
-	EventType SpotWebsocketV1PrivateEventType
+	EventType PrivateEventType
 }
 
 func (r *spotWebsocketV1PrivateEventJudge) UnmarshalJSON(data []byte) error {
 	parsedData := map[string]interface{}{}
 	if err := json.Unmarshal(data, &parsedData); err == nil {
 		if event, ok := parsedData["e"].(string); ok {
-			r.EventType = SpotWebsocketV1PrivateEventType(event)
+			r.EventType = PrivateEventType(event)
 		}
 		if authStatus, ok := parsedData["auth"].(string); ok {
 			if authStatus != "success" {
@@ -135,12 +135,12 @@ func (r *spotWebsocketV1PrivateEventJudge) UnmarshalJSON(data []byte) error {
 	if len(parsedArrayData) != 1 {
 		return errors.New("unexpected response")
 	}
-	r.EventType = SpotWebsocketV1PrivateEventType(parsedArrayData[0]["e"].(string))
+	r.EventType = PrivateEventType(parsedArrayData[0]["e"].(string))
 	return nil
 }
 
 // judgeEventType :
-func (s *SpotWebsocketV1PrivateService) judgeEventType(respBody []byte) (SpotWebsocketV1PrivateEventType, error) {
+func (s *PrivateService) judgeEventType(respBody []byte) (PrivateEventType, error) {
 	var result spotWebsocketV1PrivateEventJudge
 	if err := json.Unmarshal(respBody, &result); err != nil {
 		return "", err
@@ -149,7 +149,7 @@ func (s *SpotWebsocketV1PrivateService) judgeEventType(respBody []byte) (SpotWeb
 }
 
 // parseResponse :
-func (s *SpotWebsocketV1PrivateService) parseResponse(respBody []byte, response interface{}) error {
+func (s *PrivateService) parseResponse(respBody []byte, response interface{}) error {
 	if err := json.Unmarshal(respBody, &response); err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func (s *SpotWebsocketV1PrivateService) parseResponse(respBody []byte, response 
 }
 
 // Subscribe :
-func (s *SpotWebsocketV1PrivateService) Subscribe() error {
+func (s *PrivateService) Subscribe() error {
 	param, err := s.client.BuildAuthParam()
 	if err != nil {
 		return err
@@ -169,9 +169,9 @@ func (s *SpotWebsocketV1PrivateService) Subscribe() error {
 }
 
 // RegisterFuncOutboundAccountInfo :
-func (s *SpotWebsocketV1PrivateService) RegisterFuncOutboundAccountInfo(f func(SpotWebsocketV1PrivateOutboundAccountInfoResponse) error) error {
-	key := SpotWebsocketV1PrivateParamKey{
-		EventType: SpotWebsocketV1PrivateEventTypeOutboundAccountInfo,
+func (s *PrivateService) RegisterFuncOutboundAccountInfo(f func(PrivateOutboundAccountInfoResponse) error) error {
+	key := PrivateParamKey{
+		EventType: OutboundAccountInfo,
 	}
 	if err := s.addParamOutboundAccountInfoFunc(key, f); err != nil {
 		return err
@@ -180,7 +180,7 @@ func (s *SpotWebsocketV1PrivateService) RegisterFuncOutboundAccountInfo(f func(S
 }
 
 // Start :
-func (s *SpotWebsocketV1PrivateService) Start(ctx context.Context) {
+func (s *PrivateService) Start(ctx context.Context) {
 	done := make(chan struct{})
 
 	go func() {
@@ -227,7 +227,7 @@ func (s *SpotWebsocketV1PrivateService) Start(ctx context.Context) {
 }
 
 // Run :
-func (s *SpotWebsocketV1PrivateService) Run() error {
+func (s *PrivateService) Run() error {
 	_, message, err := s.connection.ReadMessage()
 	if err != nil {
 		return err
@@ -238,8 +238,8 @@ func (s *SpotWebsocketV1PrivateService) Run() error {
 		return err
 	}
 	switch topic {
-	case SpotWebsocketV1PrivateEventTypeOutboundAccountInfo:
-		var resp SpotWebsocketV1PrivateOutboundAccountInfoResponse
+	case OutboundAccountInfo:
+		var resp PrivateOutboundAccountInfoResponse
 		if err := s.parseResponse(message, &resp); err != nil {
 			return err
 		}
@@ -255,7 +255,7 @@ func (s *SpotWebsocketV1PrivateService) Run() error {
 }
 
 // Ping :
-func (s *SpotWebsocketV1PrivateService) Ping() error {
+func (s *PrivateService) Ping() error {
 	if err := s.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
 		return err
 	}
@@ -263,7 +263,7 @@ func (s *SpotWebsocketV1PrivateService) Ping() error {
 }
 
 // Close :
-func (s *SpotWebsocketV1PrivateService) Close() error {
+func (s *PrivateService) Close() error {
 	if err := s.connection.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "")); err != nil {
 		return err
 	}

@@ -23,15 +23,14 @@ func proxyClient(proxyURL string) websocket.Dialer {
 
 func main() {
 	client := proxyClient("socks5://127.0.0.1:1086")
-	wsClient := ws.NewWebsocketClient().WithDialer(&client)
-	//.WithBaseURL(ws.TestWebsocketBaseURL)
+	wsClient := ws.NewWebsocketClient().WithBaseURL(ws.TestWebsocketBaseURL).WithAuth("APIKey", "APISecret").WithDialer(&client)
 
 	//err := v1Multiple(wsClient)
 	//if err != nil {
 	//	return
 	//}
 
-	err := v5Single(wsClient)
+	err := v5Multiple(wsClient)
 	if err != nil {
 		return
 	}
@@ -98,14 +97,6 @@ func v5Single(wsClient *ws.WebSocketClient) error {
 		fmt.Println(err)
 		return err
 	}
-	//_, err = svc.SubscribeTickers(
-	//	wsv5.PublicTickersParamKey{
-	//		Symbol: bybit.SymbolV5BTCUSDT,
-	//	},
-	//	func(response wsv5.PublicTickersResponse) error {
-	//		fmt.Printf("v5 recv ticker: %v\n", response)
-	//		return nil
-	//	})
 	_, err = svc.SubscribeTickers(wsv5.PublicTickersParamKey{
 		Symbol: bybit.SymbolV5BTCUSDT,
 	},
@@ -113,14 +104,6 @@ func v5Single(wsClient *ws.WebSocketClient) error {
 			fmt.Printf("v5 recv tickers: %v\n", response)
 			return nil
 		})
-	//_, err = svc.SubscribeOrderBook(wsv5.PublicOrderBookParamKey{
-	//	Depth:  50,
-	//	Symbol: bybit.SymbolV5BTCUSDT,
-	//},
-	//	func(response wsv5.PublicOrderBookResponse) error {
-	//		fmt.Printf("v5 recv orderbook: %v\n", response)
-	//		return nil
-	//	})
 	if err != nil {
 		fmt.Println(err)
 		return err

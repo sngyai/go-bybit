@@ -11,104 +11,107 @@ bybit is an bybit client for the Go programming language.
 ### REST API
 
 ```golang
-import "github.com/sngyai/go-bybit"
+import (
+    "github.com/sngyai/go-bybit"
+    "github.com/sngyai/go-bybit/rest"
+)
 
-client := bybit.NewClient().WithAuth("your api key", "your api secret")
-res, err := client.Future().InversePerpetual().Balance(bybit.CoinBTC)
-// do as you want
+b := rest.NewClient().WithAuth("", "").WithTestnet()
+
+symbol := bybit.SymbolV5BTCUSDT
+res, err := b.V5().Market().GetInstrumentsInfo(rest.V5GetInstrumentsInfoParam{
+    Category: "spot",
+})
+if err != nil {
+	log.Println(err)
+}
+log.Printf("InstrumentsInfo: %#v\n", res.Result.Spot.List)
 ```
 
-### WebSocket API
+### WebSocket API v5
+create new websocket
+```golang
+import (
+    "github.com/sngyai/go-bybit"
+    "github.com/sngyai/go-bybit/ws"
+    "github.com/sngyai/go-bybit/ws/wsv5"
+)
+
+prx, _ := url.Parse(proxyURL) // some not-exist-proxy
+
+netDialer, _ := proxy.SOCKS5("tcp", prx.Host, nil, &net.Dialer{})
+dialer := websocket.Dialer{NetDial: netDialer.Dial}
+
+client := proxyClient("socks5://127.0.0.1:1086")
+wsClient := ws.NewWebsocketClient().WithBaseURL(ws.TestWebsocketBaseURL).WithAuth("APIKey", "APISecret").WithDialer(&client)
+```
 
 for single use
 ```golang
-import "github.com/sngyai/go-bybit"
+svc, err := wsv5.NewWSClient(wsClient).Public(bybit.CategoryV5Spot)
+if err != nil {
+    fmt.Println(err)
+    return err
+}
+_, err = svc.SubscribeTickers(wsv5.PublicTickersParamKey{
+        Symbol: bybit.SymbolV5BTCUSDT,
+    },
+    func(response wsv5.PublicTickersResponse) error {
+        fmt.Printf("v5 recv tickers: %v\n", response)
+        return nil
+    })
+if err != nil {
+    fmt.Println(err)
+    return err
+}
 
-wsClient := bybit.NewWebsocketClient()
-svc, err := wsClient.Spot().V1().PublicV1()
-if err != nil {
-	return err
+errHandler := func(isWebsocketClosed bool, err error) {
+    fmt.Printf("handle ws failed, isWebsocketClosed: %b, err: %v", isWebsocketClosed, err)
 }
-_, err = svc.SubscribeTrade(bybit.SymbolSpotBTCUSDT, func(response bybit.SpotWebsocketV1PublicV1TradeResponse) error {
-	// do as you want
-})
-if err != nil {
-	return err
-}
-svc.Start(context.Background())
+svc.Start(context.Background(), errHandler)
 ```
 
 for multiple use
 ```golang
-import "github.com/sngyai/go-bybit"
-
-wsClient := bybit.NewWebsocketClient()
-
-executors := []bybit.WebsocketExecutor{}
-
-svcRoot := wsClient.Spot().V1()
+var executors []ws.WebsocketExecutor
+svcRoot := wsv5.NewWSClient(wsClient)
 {
-	svc, err := svcRoot.PublicV1()
+    svc, err := svcRoot.Public(bybit.CategoryV5Spot)
+    if err != nil {
+		return err
+    }
+    _, err = svc.SubscribeTickers(
+		wsv5.PublicTickersParamKey{
+			Symbol: bybit.SymbolV5BTCUSDT,
+        }, 
+		func(response wsv5.PublicTickersResponse) error {
+			fmt.Printf("v5 recv ticker: %v\n", response)
+			return nil
+        })
 	if err != nil {
 		return err
-	}
-	_, err = svc.SubscribeTrade(bybit.SymbolSpotBTCUSDT, func(response bybit.SpotWebsocketV1PublicV1TradeResponse) error {
-		// do as you want
-	})
-	if err != nil {
-		return err
-	}
-	executors = append(executors, svc)
+    }
+    executors = append(executors, svc)
 }
 {
-	svc, err := svcRoot.PublicV2()
-	if err != nil {
-		return err
-	}
-	_, err = svc.SubscribeTrade(bybit.SymbolSpotBTCUSDT, func(response bybit.SpotWebsocketV1PublicV2TradeResponse) error {
-		// do as you want
-	})
-	if err != nil {
-		return err
-	}
-	executors = append(executors, svc)
+    svc, err := svcRoot.Public(bybit.CategoryV5Spot)
+    if err != nil {
+        return err
+    }
+    _, err = svc.SubscribeOrderBook(wsv5.PublicOrderBookParamKey{
+		Depth:  50, 
+		Symbol: bybit.SymbolV5BTCUSDT,
+    }, 
+	func(response wsv5.PublicOrderBookResponse) error {
+		fmt.Printf("v5 recv orderbook: %v\n", response)
+		return nil
+    })
+    if err != nil {
+        return err
+    }
+    executors = append(executors, svc)
 }
-
 wsClient.Start(context.Background(), executors)
-```
-
-V5 usage
-```golang
-import "github.com/sngyai/go-bybit"
-
-wsClient := bybit.NewWebsocketClient().WithBaseURL("wss://stream-testnet.bybit.com").WithAuth("key", "secret")
-svc, err := wsClient.V5().Private()
-if err != nil {
-	// handle dialing error
-}
-
-err = svc.Subscribe()
-if err != nil {
-	// handle subscription error
-}
-
-err = svc.RegisterFuncPosition(func(position bybit.V5WebsocketPrivatePositionResponseContent) error {
-	// handle new position information
-})
-if err != nil {
-	// handle registration error
-}
-
-errHandler := func(isWebsocketClosed bool, err error) {
-	// Connection issue (timeout, etc.). 
-	
-	// At this point, the connection is dead and you must handle the reconnection yourself
-}
-
-err = svc.Start(context.Background(), errHandler)
-if err != nil {
-	// handle reconnection (ping issue, etc.). Probably can be ignored as the errHandler would be notified too
-}
 ```
 
 ## Implemented

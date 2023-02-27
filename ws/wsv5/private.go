@@ -13,8 +13,8 @@ import (
 	"github.com/sngyai/go-bybit/ws"
 )
 
-// V5WebsocketPrivateServiceI :
-type V5WebsocketPrivateServiceI interface {
+// PrivateServiceI :
+type PrivateServiceI interface {
 	Start(context.Context, ErrHandler) error
 	Subscribe() error
 	Run() error
@@ -22,52 +22,52 @@ type V5WebsocketPrivateServiceI interface {
 	Close() error
 
 	SubscribeOrder(
-		func(V5WebsocketPrivateOrderResponse) error,
+		func(PrivateOrderResponse) error,
 	) (func() error, error)
 
 	SubscribePosition(
-		func(V5WebsocketPrivatePositionResponse) error,
+		func(PrivatePositionResponse) error,
 	) (func() error, error)
 }
 
-// V5WebsocketPrivateService :
-type V5WebsocketPrivateService struct {
+// PrivateService :
+type PrivateService struct {
 	client     *ws.WebSocketClient
 	connection *websocket.Conn
 
-	paramOrderMap    map[V5WebsocketPrivateParamKey]func(V5WebsocketPrivateOrderResponse) error
-	paramPositionMap map[V5WebsocketPrivateParamKey]func(V5WebsocketPrivatePositionResponse) error
+	paramOrderMap    map[PrivateParamKey]func(PrivateOrderResponse) error
+	paramPositionMap map[PrivateParamKey]func(PrivatePositionResponse) error
 }
 
 const (
-	// V5WebsocketPrivatePath :
-	V5WebsocketPrivatePath = "/v5/private"
+	// PrivatePath :
+	PrivatePath = "/v5/private"
 )
 
-// V5WebsocketPrivateTopic :
-type V5WebsocketPrivateTopic string
+// PrivateTopic :
+type PrivateTopic string
 
 const (
-	// V5WebsocketPrivateTopicOrder :
-	V5WebsocketPrivateTopicOrder = "order"
+	// PrivateTopicOrder :
+	PrivateTopicOrder = "order"
 
-	// V5WebsocketPrivateTopicPosition :
-	V5WebsocketPrivateTopicPosition = "position"
+	// PrivateTopicPosition :
+	PrivateTopicPosition = "position"
 )
 
-// V5WebsocketPrivateParamKey :
-type V5WebsocketPrivateParamKey struct {
-	Topic V5WebsocketPrivateTopic
+// PrivateParamKey :
+type PrivateParamKey struct {
+	Topic PrivateTopic
 }
 
 // judgeTopic :
-func (s *V5WebsocketPrivateService) judgeTopic(respBody []byte) (V5WebsocketPrivateTopic, error) {
+func (s *PrivateService) judgeTopic(respBody []byte) (PrivateTopic, error) {
 	parsedData := map[string]interface{}{}
 	if err := json.Unmarshal(respBody, &parsedData); err != nil {
 		return "", err
 	}
 	if topic, ok := parsedData["topic"].(string); ok {
-		return V5WebsocketPrivateTopic(topic), nil
+		return PrivateTopic(topic), nil
 	}
 	if authStatus, ok := parsedData["success"].(bool); ok {
 		if !authStatus {
@@ -78,7 +78,7 @@ func (s *V5WebsocketPrivateService) judgeTopic(respBody []byte) (V5WebsocketPriv
 }
 
 // parseResponse :
-func (s *V5WebsocketPrivateService) parseResponse(respBody []byte, response interface{}) error {
+func (s *PrivateService) parseResponse(respBody []byte, response interface{}) error {
 	if err := json.Unmarshal(respBody, &response); err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (s *V5WebsocketPrivateService) parseResponse(respBody []byte, response inte
 }
 
 // Subscribe : Apply for authentication when establishing a connection.
-func (s *V5WebsocketPrivateService) Subscribe() error {
+func (s *PrivateService) Subscribe() error {
 	param, err := s.client.BuildAuthParam()
 	if err != nil {
 		return err
@@ -101,7 +101,7 @@ func (s *V5WebsocketPrivateService) Subscribe() error {
 type ErrHandler func(isWebsocketClosed bool, err error)
 
 // Start :
-func (s *V5WebsocketPrivateService) Start(ctx context.Context, errHandler ErrHandler) error {
+func (s *PrivateService) Start(ctx context.Context, errHandler ErrHandler) error {
 	done := make(chan struct{})
 
 	go func() {
@@ -151,7 +151,7 @@ func (s *V5WebsocketPrivateService) Start(ctx context.Context, errHandler ErrHan
 }
 
 // Run :
-func (s *V5WebsocketPrivateService) Run() error {
+func (s *PrivateService) Run() error {
 	_, message, err := s.connection.ReadMessage()
 	if err != nil {
 		return err
@@ -162,8 +162,8 @@ func (s *V5WebsocketPrivateService) Run() error {
 		return err
 	}
 	switch topic {
-	case V5WebsocketPrivateTopicOrder:
-		var resp V5WebsocketPrivateOrderResponse
+	case PrivateTopicOrder:
+		var resp PrivateOrderResponse
 		if err := s.parseResponse(message, &resp); err != nil {
 			return err
 		}
@@ -174,8 +174,8 @@ func (s *V5WebsocketPrivateService) Run() error {
 		if err := f(resp); err != nil {
 			return err
 		}
-	case V5WebsocketPrivateTopicPosition:
-		var resp V5WebsocketPrivatePositionResponse
+	case PrivateTopicPosition:
+		var resp PrivatePositionResponse
 		if err := s.parseResponse(message, &resp); err != nil {
 			return err
 		}
@@ -192,7 +192,7 @@ func (s *V5WebsocketPrivateService) Run() error {
 }
 
 // Ping :
-func (s *V5WebsocketPrivateService) Ping() error {
+func (s *PrivateService) Ping() error {
 	if err := s.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
 		return err
 	}
@@ -200,7 +200,7 @@ func (s *V5WebsocketPrivateService) Ping() error {
 }
 
 // Close :
-func (s *V5WebsocketPrivateService) Close() error {
+func (s *PrivateService) Close() error {
 	if err := s.connection.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "")); err != nil {
 		return err
 	}

@@ -9,11 +9,11 @@ import (
 )
 
 // SubscribePosition :
-func (s *V5WebsocketPrivateService) SubscribePosition(
-	f func(V5WebsocketPrivatePositionResponse) error,
+func (s *PrivateService) SubscribePosition(
+	f func(PrivatePositionResponse) error,
 ) (func() error, error) {
-	key := V5WebsocketPrivateParamKey{
-		Topic: V5WebsocketPrivateTopicPosition,
+	key := PrivateParamKey{
+		Topic: PrivateTopicPosition,
 	}
 	if err := s.addParamPositionFunc(key, f); err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (s *V5WebsocketPrivateService) SubscribePosition(
 		Args []interface{} `json:"args"`
 	}{
 		Op:   "subscribe",
-		Args: []interface{}{V5WebsocketPrivateTopicPosition},
+		Args: []interface{}{PrivateTopicPosition},
 	}
 	buf, err := json.Marshal(param)
 	if err != nil {
@@ -38,7 +38,7 @@ func (s *V5WebsocketPrivateService) SubscribePosition(
 			Args []interface{} `json:"args"`
 		}{
 			Op:   "unsubscribe",
-			Args: []interface{}{V5WebsocketPrivateTopicPosition},
+			Args: []interface{}{PrivateTopicPosition},
 		}
 		buf, err := json.Marshal(param)
 		if err != nil {
@@ -52,10 +52,10 @@ func (s *V5WebsocketPrivateService) SubscribePosition(
 	}, nil
 }
 
-// V5WebsocketPrivatePositionResponse :
-type V5WebsocketPrivatePositionResponse struct {
+// PrivatePositionResponse :
+type PrivatePositionResponse struct {
 	ID           string                           `json:"id"`
-	Topic        V5WebsocketPrivateTopic          `json:"topic"`
+	Topic        PrivateTopic                     `json:"topic"`
 	CreationTime int64                            `json:"creationTime"`
 	Data         []V5WebsocketPrivatePositionData `json:"data"`
 }
@@ -93,14 +93,14 @@ type V5WebsocketPrivatePositionData struct {
 }
 
 // Key :
-func (r *V5WebsocketPrivatePositionResponse) Key() V5WebsocketPrivateParamKey {
-	return V5WebsocketPrivateParamKey{
+func (r *PrivatePositionResponse) Key() PrivateParamKey {
+	return PrivateParamKey{
 		Topic: r.Topic,
 	}
 }
 
 // addParamPositionFunc :
-func (s *V5WebsocketPrivateService) addParamPositionFunc(param V5WebsocketPrivateParamKey, f func(V5WebsocketPrivatePositionResponse) error) error {
+func (s *PrivateService) addParamPositionFunc(param PrivateParamKey, f func(PrivatePositionResponse) error) error {
 	if _, exist := s.paramPositionMap[param]; exist {
 		return errors.New("already registered for this param")
 	}
@@ -109,12 +109,12 @@ func (s *V5WebsocketPrivateService) addParamPositionFunc(param V5WebsocketPrivat
 }
 
 // removeParamPositionFunc :
-func (s *V5WebsocketPrivateService) removeParamPositionFunc(key V5WebsocketPrivateParamKey) {
+func (s *PrivateService) removeParamPositionFunc(key PrivateParamKey) {
 	delete(s.paramPositionMap, key)
 }
 
 // retrievePositionFunc :
-func (s *V5WebsocketPrivateService) retrievePositionFunc(key V5WebsocketPrivateParamKey) (func(V5WebsocketPrivatePositionResponse) error, error) {
+func (s *PrivateService) retrievePositionFunc(key PrivateParamKey) (func(PrivatePositionResponse) error, error) {
 	f, exist := s.paramPositionMap[key]
 	if !exist {
 		return nil, errors.New("func not found")

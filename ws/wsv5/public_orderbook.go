@@ -12,9 +12,9 @@ import (
 )
 
 // SubscribeOrderBook :
-func (s *V5WebsocketPublicService) SubscribeOrderBook(
-	key V5WebsocketPublicOrderBookParamKey,
-	f func(V5WebsocketPublicOrderBookResponse) error,
+func (s *PublicService) SubscribeOrderBook(
+	key PublicOrderBookParamKey,
+	f func(PublicOrderBookResponse) error,
 ) (func() error, error) {
 	if err := s.addParamOrderBookFunc(key, f); err != nil {
 		return nil, err
@@ -53,47 +53,47 @@ func (s *V5WebsocketPublicService) SubscribeOrderBook(
 	}, nil
 }
 
-// V5WebsocketPublicOrderBookParamKey :
-type V5WebsocketPublicOrderBookParamKey struct {
+// PublicOrderBookParamKey :
+type PublicOrderBookParamKey struct {
 	Depth  int
 	Symbol bybit.SymbolV5
 }
 
 // Topic :
-func (k *V5WebsocketPublicOrderBookParamKey) Topic() string {
+func (k *PublicOrderBookParamKey) Topic() string {
 	return fmt.Sprintf("orderbook.%d.%s", k.Depth, k.Symbol)
 }
 
-// V5WebsocketPublicOrderBookResponse :
-type V5WebsocketPublicOrderBookResponse struct {
-	Topic     string                         `json:"topic"`
-	Type      string                         `json:"type"`
-	TimeStamp int64                          `json:"ts"`
-	Data      V5WebsocketPublicOrderBookData `json:"data"`
+// PublicOrderBookResponse :
+type PublicOrderBookResponse struct {
+	Topic     string              `json:"topic"`
+	Type      string              `json:"type"`
+	TimeStamp int64               `json:"ts"`
+	Data      PublicOrderBookData `json:"data"`
 }
 
-// V5WebsocketPublicOrderBookData :
-type V5WebsocketPublicOrderBookData struct {
-	Symbol   bybit.SymbolV5                 `json:"s"`
-	Bids     V5WebsocketPublicOrderBookBids `json:"b"`
-	Asks     V5WebsocketPublicOrderBookAsks `json:"a"`
-	UpdateID int                            `json:"u"`
-	Seq      int                            `json:"seq"`
+// PublicOrderBookData :
+type PublicOrderBookData struct {
+	Symbol   bybit.SymbolV5      `json:"s"`
+	Bids     PublicOrderBookBids `json:"b"`
+	Asks     PublicOrderBookAsks `json:"a"`
+	UpdateID int                 `json:"u"`
+	Seq      int                 `json:"seq"`
 }
 
-// V5WebsocketPublicOrderBookBids :
-type V5WebsocketPublicOrderBookBids []struct {
+// PublicOrderBookBids :
+type PublicOrderBookBids []struct {
 	Price string `json:"price"`
 	Size  string `json:"size"`
 }
 
 // UnmarshalJSON :
-func (b *V5WebsocketPublicOrderBookBids) UnmarshalJSON(data []byte) error {
+func (b *PublicOrderBookBids) UnmarshalJSON(data []byte) error {
 	parsedData := [][]string{}
 	if err := json.Unmarshal(data, &parsedData); err != nil {
 		return err
 	}
-	items := make(V5WebsocketPublicOrderBookBids, len(parsedData))
+	items := make(PublicOrderBookBids, len(parsedData))
 	for i, item := range parsedData {
 		item := item
 		if len(item) != 2 {
@@ -106,19 +106,19 @@ func (b *V5WebsocketPublicOrderBookBids) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-// V5WebsocketPublicOrderBookAsks :
-type V5WebsocketPublicOrderBookAsks []struct {
+// PublicOrderBookAsks :
+type PublicOrderBookAsks []struct {
 	Price string `json:"price"`
 	Size  string `json:"size"`
 }
 
 // UnmarshalJSON :
-func (b *V5WebsocketPublicOrderBookAsks) UnmarshalJSON(data []byte) error {
+func (b *PublicOrderBookAsks) UnmarshalJSON(data []byte) error {
 	parsedData := [][]string{}
 	if err := json.Unmarshal(data, &parsedData); err != nil {
 		return err
 	}
-	items := make(V5WebsocketPublicOrderBookAsks, len(parsedData))
+	items := make(PublicOrderBookAsks, len(parsedData))
 	for i, item := range parsedData {
 		item := item
 		if len(item) != 2 {
@@ -132,25 +132,25 @@ func (b *V5WebsocketPublicOrderBookAsks) UnmarshalJSON(data []byte) error {
 }
 
 // Key :
-func (r *V5WebsocketPublicOrderBookResponse) Key() V5WebsocketPublicOrderBookParamKey {
+func (r *PublicOrderBookResponse) Key() PublicOrderBookParamKey {
 	topic := r.Topic
 	arr := strings.Split(topic, ".")
 	if arr[0] != "orderbook" || len(arr) != 3 {
-		return V5WebsocketPublicOrderBookParamKey{}
+		return PublicOrderBookParamKey{}
 	}
 	depth, err := strconv.Atoi(arr[1])
 	if err != nil {
-		return V5WebsocketPublicOrderBookParamKey{}
+		return PublicOrderBookParamKey{}
 	}
 	symbol := bybit.SymbolV5(arr[2])
-	return V5WebsocketPublicOrderBookParamKey{
+	return PublicOrderBookParamKey{
 		Depth:  depth,
 		Symbol: symbol,
 	}
 }
 
 // addParamOrderBookFunc :
-func (s *V5WebsocketPublicService) addParamOrderBookFunc(param V5WebsocketPublicOrderBookParamKey, f func(V5WebsocketPublicOrderBookResponse) error) error {
+func (s *PublicService) addParamOrderBookFunc(param PublicOrderBookParamKey, f func(PublicOrderBookResponse) error) error {
 	if _, exist := s.paramOrderBookMap[param]; exist {
 		return errors.New("already registered for this param")
 	}
@@ -159,12 +159,12 @@ func (s *V5WebsocketPublicService) addParamOrderBookFunc(param V5WebsocketPublic
 }
 
 // removeParamTradeFunc :
-func (s *V5WebsocketPublicService) removeParamOrderBookFunc(key V5WebsocketPublicOrderBookParamKey) {
+func (s *PublicService) removeParamOrderBookFunc(key PublicOrderBookParamKey) {
 	delete(s.paramOrderBookMap, key)
 }
 
 // retrievePositionFunc :
-func (s *V5WebsocketPublicService) retrieveOrderBookFunc(key V5WebsocketPublicOrderBookParamKey) (func(V5WebsocketPublicOrderBookResponse) error, error) {
+func (s *PublicService) retrieveOrderBookFunc(key PublicOrderBookParamKey) (func(PublicOrderBookResponse) error, error) {
 	f, exist := s.paramOrderBookMap[key]
 	if !exist {
 		return nil, errors.New("func not found")

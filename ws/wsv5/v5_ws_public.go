@@ -14,47 +14,47 @@ import (
 	"github.com/sngyai/go-bybit/ws"
 )
 
-// V5WebsocketPublicServiceI :
-type V5WebsocketPublicServiceI interface {
+// PublicServiceI :
+type PublicServiceI interface {
 	Start(context.Context, ErrHandler) error
 	Run() error
 	Ping() error
 	Close() error
 
 	SubscribeOrderBook(
-		V5WebsocketPublicOrderBookParamKey,
-		func(V5WebsocketPublicOrderBookResponse) error,
+		PublicOrderBookParamKey,
+		func(PublicOrderBookResponse) error,
 	) (func() error, error)
 }
 
-// V5WebsocketPublicService :
-type V5WebsocketPublicService struct {
+// PublicService :
+type PublicService struct {
 	client     *ws.WebSocketClient
 	connection *websocket.Conn
 
-	paramOrderBookMap map[V5WebsocketPublicOrderBookParamKey]func(V5WebsocketPublicOrderBookResponse) error
+	paramOrderBookMap map[PublicOrderBookParamKey]func(PublicOrderBookResponse) error
 }
 
 const (
-	// V5WebsocketPublicPath :
-	V5WebsocketPublicPath = "/v5/public"
+	// PublicPath :
+	PublicPath = "/v5/public"
 )
 
-// V5WebsocketPublicPathFor :
-func V5WebsocketPublicPathFor(category bybit.CategoryV5) string {
-	return V5WebsocketPublicPath + "/" + string(category)
+// PublicPathFor :
+func PublicPathFor(category bybit.CategoryV5) string {
+	return PublicPath + "/" + string(category)
 }
 
-// V5WebsocketPublicTopic :
-type V5WebsocketPublicTopic string
+// PublicTopic :
+type PublicTopic string
 
 const (
-	// V5WebsocketPublicTopicOrderBook :
-	V5WebsocketPublicTopicOrderBook = "orderbook"
+	// PublicTopicOrderBook :
+	PublicTopicOrderBook = "orderbook"
 )
 
 // judgeTopic :
-func (s *V5WebsocketPublicService) judgeTopic(respBody []byte) (V5WebsocketPublicTopic, error) {
+func (s *PublicService) judgeTopic(respBody []byte) (PublicTopic, error) {
 	parsedData := map[string]interface{}{}
 	if err := json.Unmarshal(respBody, &parsedData); err != nil {
 		return "", err
@@ -62,14 +62,14 @@ func (s *V5WebsocketPublicService) judgeTopic(respBody []byte) (V5WebsocketPubli
 	if topic, ok := parsedData["topic"].(string); ok {
 		switch {
 		case strings.Contains(topic, "orderbook"):
-			return V5WebsocketPublicTopicOrderBook, nil
+			return PublicTopicOrderBook, nil
 		}
 	}
 	return "", nil
 }
 
 // parseResponse :
-func (s *V5WebsocketPublicService) parseResponse(respBody []byte, response interface{}) error {
+func (s *PublicService) parseResponse(respBody []byte, response interface{}) error {
 	if err := json.Unmarshal(respBody, &response); err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (s *V5WebsocketPublicService) parseResponse(respBody []byte, response inter
 }
 
 // Start :
-func (s *V5WebsocketPublicService) Start(ctx context.Context, errHandler ErrHandler) error {
+func (s *PublicService) Start(ctx context.Context, errHandler ErrHandler) error {
 	done := make(chan struct{})
 
 	go func() {
@@ -127,7 +127,7 @@ func (s *V5WebsocketPublicService) Start(ctx context.Context, errHandler ErrHand
 }
 
 // Run :
-func (s *V5WebsocketPublicService) Run() error {
+func (s *PublicService) Run() error {
 	_, message, err := s.connection.ReadMessage()
 	if err != nil {
 		return err
@@ -138,8 +138,8 @@ func (s *V5WebsocketPublicService) Run() error {
 		return err
 	}
 	switch topic {
-	case V5WebsocketPublicTopicOrderBook:
-		var resp V5WebsocketPublicOrderBookResponse
+	case PublicTopicOrderBook:
+		var resp PublicOrderBookResponse
 		if err := s.parseResponse(message, &resp); err != nil {
 			return err
 		}
@@ -155,7 +155,7 @@ func (s *V5WebsocketPublicService) Run() error {
 }
 
 // Ping :
-func (s *V5WebsocketPublicService) Ping() error {
+func (s *PublicService) Ping() error {
 	if err := s.connection.WriteMessage(websocket.PingMessage, nil); err != nil {
 		return err
 	}
@@ -163,7 +163,7 @@ func (s *V5WebsocketPublicService) Ping() error {
 }
 
 // Close :
-func (s *V5WebsocketPublicService) Close() error {
+func (s *PublicService) Close() error {
 	if err := s.connection.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "")); err != nil {
 		return err
 	}

@@ -8,11 +8,11 @@ import (
 )
 
 // SubscribeOrder :
-func (s *V5WebsocketPrivateService) SubscribeOrder(
-	f func(V5WebsocketPrivateOrderResponse) error,
+func (s *PrivateService) SubscribeOrder(
+	f func(PrivateOrderResponse) error,
 ) (func() error, error) {
-	key := V5WebsocketPrivateParamKey{
-		Topic: V5WebsocketPrivateTopicOrder,
+	key := PrivateParamKey{
+		Topic: PrivateTopicOrder,
 	}
 	if err := s.addParamOrderFunc(key, f); err != nil {
 		return nil, err
@@ -22,7 +22,7 @@ func (s *V5WebsocketPrivateService) SubscribeOrder(
 		Args []interface{} `json:"args"`
 	}{
 		Op:   "subscribe",
-		Args: []interface{}{V5WebsocketPrivateTopicOrder},
+		Args: []interface{}{PrivateTopicOrder},
 	}
 	buf, err := json.Marshal(param)
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *V5WebsocketPrivateService) SubscribeOrder(
 			Args []interface{} `json:"args"`
 		}{
 			Op:   "unsubscribe",
-			Args: []interface{}{V5WebsocketPrivateTopicOrder},
+			Args: []interface{}{PrivateTopicOrder},
 		}
 		buf, err := json.Marshal(param)
 		if err != nil {
@@ -51,16 +51,16 @@ func (s *V5WebsocketPrivateService) SubscribeOrder(
 	}, nil
 }
 
-// V5WebsocketPrivateOrderResponse :
-type V5WebsocketPrivateOrderResponse struct {
-	ID           string                        `json:"id"`
-	Topic        V5WebsocketPrivateTopic       `json:"topic"`
-	CreationTime int64                         `json:"creationTime"`
-	Data         []V5WebsocketPrivateOrderData `json:"data"`
+// PrivateOrderResponse :
+type PrivateOrderResponse struct {
+	ID           string             `json:"id"`
+	Topic        PrivateTopic       `json:"topic"`
+	CreationTime int64              `json:"creationTime"`
+	Data         []PrivateOrderData `json:"data"`
 }
 
-// V5WebsocketPrivateOrderData :
-type V5WebsocketPrivateOrderData struct {
+// PrivateOrderData :
+type PrivateOrderData struct {
 	AvgPrice           string `json:"avgPrice"`
 	BlockTradeID       string `json:"blockTradeId"`
 	CancelType         string `json:"cancelType"`
@@ -99,14 +99,14 @@ type V5WebsocketPrivateOrderData struct {
 }
 
 // Key :
-func (r *V5WebsocketPrivateOrderResponse) Key() V5WebsocketPrivateParamKey {
-	return V5WebsocketPrivateParamKey{
+func (r *PrivateOrderResponse) Key() PrivateParamKey {
+	return PrivateParamKey{
 		Topic: r.Topic,
 	}
 }
 
 // addParamOrderFunc :
-func (s *V5WebsocketPrivateService) addParamOrderFunc(param V5WebsocketPrivateParamKey, f func(V5WebsocketPrivateOrderResponse) error) error {
+func (s *PrivateService) addParamOrderFunc(param PrivateParamKey, f func(PrivateOrderResponse) error) error {
 	if _, exist := s.paramOrderMap[param]; exist {
 		return errors.New("already registered for this param")
 	}
@@ -115,12 +115,12 @@ func (s *V5WebsocketPrivateService) addParamOrderFunc(param V5WebsocketPrivatePa
 }
 
 // removeParamOrderFunc :
-func (s *V5WebsocketPrivateService) removeParamOrderFunc(key V5WebsocketPrivateParamKey) {
+func (s *PrivateService) removeParamOrderFunc(key PrivateParamKey) {
 	delete(s.paramOrderMap, key)
 }
 
 // retrieveOrderFunc :
-func (s *V5WebsocketPrivateService) retrieveOrderFunc(key V5WebsocketPrivateParamKey) (func(V5WebsocketPrivateOrderResponse) error, error) {
+func (s *PrivateService) retrieveOrderFunc(key PrivateParamKey) (func(PrivateOrderResponse) error, error) {
 	f, exist := s.paramOrderMap[key]
 	if !exist {
 		return nil, errors.New("func not found")

@@ -18,35 +18,35 @@ func NewWSClient(c *ws.WebSocketClient) *WebsocketClientV5 {
 
 // V5WebsocketServiceI :
 type V5WebsocketServiceI interface {
-	Public(bybit.CategoryV5) (V5WebsocketPublicService, error)
-	Private() (V5WebsocketPrivateService, error)
+	Public(bybit.CategoryV5) (PublicService, error)
+	Private() (PrivateService, error)
 }
 
 // Public :
-func (s *WebsocketClientV5) Public(category bybit.CategoryV5) (V5WebsocketPublicServiceI, error) {
-	url := s.Client.BaseURL + V5WebsocketPublicPathFor(category)
+func (s *WebsocketClientV5) Public(category bybit.CategoryV5) (PublicServiceI, error) {
+	url := s.Client.BaseURL + PublicPathFor(category)
 	c, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &V5WebsocketPublicService{
+	return &PublicService{
 		client:            s.Client,
 		connection:        c,
-		paramOrderBookMap: map[V5WebsocketPublicOrderBookParamKey]func(V5WebsocketPublicOrderBookResponse) error{},
+		paramOrderBookMap: map[PublicOrderBookParamKey]func(PublicOrderBookResponse) error{},
 	}, nil
 }
 
 // Private :
-func (s *WebsocketClientV5) Private() (V5WebsocketPrivateServiceI, error) {
-	url := s.Client.BaseURL + V5WebsocketPrivatePath
+func (s *WebsocketClientV5) Private() (PrivateServiceI, error) {
+	url := s.Client.BaseURL + PrivatePath
 	c, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
 		return nil, err
 	}
-	return &V5WebsocketPrivateService{
+	return &PrivateService{
 		client:           s.Client,
 		connection:       c,
-		paramOrderMap:    map[V5WebsocketPrivateParamKey]func(V5WebsocketPrivateOrderResponse) error{},
-		paramPositionMap: map[V5WebsocketPrivateParamKey]func(V5WebsocketPrivatePositionResponse) error{},
+		paramOrderMap:    map[PrivateParamKey]func(PrivateOrderResponse) error{},
+		paramPositionMap: map[PrivateParamKey]func(PrivatePositionResponse) error{},
 	}, nil
 }

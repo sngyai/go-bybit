@@ -61,11 +61,11 @@ func exampleV5(wsClient *ws.WebSocketClient) error {
 		fmt.Println(err)
 		return err
 	}
-	_, err = svc.SubscribeOrderBook(wsv5.V5WebsocketPublicOrderBookParamKey{
+	_, err = svc.SubscribeOrderBook(wsv5.PublicOrderBookParamKey{
 		Depth:  5,
 		Symbol: bybit.SymbolV5BTCUSDT,
 	},
-		func(response wsv5.V5WebsocketPublicOrderBookResponse) error {
+		func(response wsv5.PublicOrderBookResponse) error {
 			fmt.Printf("v5 recv: %v\n", response)
 			return nil
 		})

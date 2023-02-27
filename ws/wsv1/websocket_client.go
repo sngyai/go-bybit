@@ -1,4 +1,4 @@
-package v1
+package wsv1
 
 import (
 	"github.com/gorilla/websocket"
@@ -10,8 +10,8 @@ type WebsocketClientV1 struct {
 	Client *ws.WebSocketClient
 }
 
-// NewWSClientV1 v1 client
-func NewWSClientV1(c *ws.WebSocketClient) *WebsocketClientV1 {
+// NewWSClient v1 client
+func NewWSClient(c *ws.WebSocketClient) *WebsocketClientV1 {
 	return &WebsocketClientV1{Client: c}
 }
 

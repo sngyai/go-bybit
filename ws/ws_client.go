@@ -11,6 +11,8 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -20,22 +22,22 @@ const (
 	WebsocketBaseURL2 = "wss://stream.bytick.com"
 
 	TestWebsocketBaseURL = "wss://stream-testnet.bybit.com"
-
-	WebsocketBaseURLV5     = "wss://stream.bybit.com/v5/public/spot"
-	TestWebsocketBaseURLV5 = "wss://stream-testnet.bybit.com/v5/public/spot"
 )
 
 // WebSocketClient :
 type WebSocketClient struct {
 	BaseURL string
-	key     string
-	secret  string
+	Dialer  *websocket.Dialer
+
+	key    string
+	secret string
 }
 
 // NewWebsocketClient :
 func NewWebsocketClient() *WebSocketClient {
 	return &WebSocketClient{
 		BaseURL: WebsocketBaseURL,
+		Dialer:  websocket.DefaultDialer,
 	}
 }
 
@@ -50,6 +52,13 @@ func (c *WebSocketClient) WithAuth(key string, secret string) *WebSocketClient {
 // WithBaseURL :
 func (c *WebSocketClient) WithBaseURL(url string) *WebSocketClient {
 	c.BaseURL = url
+
+	return c
+}
+
+// WithDialer :
+func (c *WebSocketClient) WithDialer(dialer *websocket.Dialer) *WebSocketClient {
+	c.Dialer = dialer
 
 	return c
 }

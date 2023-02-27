@@ -1,4 +1,4 @@
-package v1
+package wsv1
 
 import (
 	"context"

@@ -71,3 +71,45 @@ func (s *V5OrderService) CreateOrder(param V5CreateOrderParam) (*V5CreateOrderRe
 
 	return &res, nil
 }
+
+// V5CancelOrderParam :
+type V5CancelOrderParam struct {
+	Category bybit.CategoryV5 `json:"category"`
+	Symbol   bybit.SymbolV5   `json:"symbol"`
+
+	OrderID     *string            `json:"orderId,omitempty"`
+	OrderLinkID *string            `json:"orderLinkId,omitempty"`
+	OrderFilter *bybit.OrderFilter `json:"orderFilter,omitempty"` // If not passed, Order by default
+}
+
+// V5CancelOrderResponse :
+type V5CancelOrderResponse struct {
+	CommonV5Response `json:",inline"`
+	Result           V5CancelOrderResult `json:"result"`
+}
+
+// V5CancelOrderResult :
+type V5CancelOrderResult struct {
+	OrderID     string `json:"orderId"`
+	OrderLinkID string `json:"orderLinkId"`
+}
+
+// CancelOrder :
+func (s *V5OrderService) CancelOrder(param V5CancelOrderParam) (*V5CancelOrderResponse, error) {
+	var res V5CancelOrderResponse
+
+	if param.OrderID == nil && param.OrderLinkID == nil {
+		return nil, fmt.Errorf("either OrderID or OrderLinkID needed")
+	}
+
+	body, err := json.Marshal(param)
+	if err != nil {
+		return &res, fmt.Errorf("json marshal: %w", err)
+	}
+
+	if err := s.client.postV5JSON("/v5/order/cancel", body, &res); err != nil {
+		return &res, err
+	}
+
+	return &res, nil
+}

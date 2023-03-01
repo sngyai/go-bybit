@@ -41,6 +41,7 @@ func main() {
 
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	log.Printf("InstrumentsInfo: %#v\n", res.Result.Spot.List)
 

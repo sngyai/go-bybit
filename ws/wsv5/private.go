@@ -37,6 +37,7 @@ type PrivateService struct {
 
 	paramOrderMap    map[PrivateParamKey]func(PrivateOrderResponse) error
 	paramPositionMap map[PrivateParamKey]func(PrivatePositionResponse) error
+	paramWalletMap   map[PrivateParamKey]func(PrivateWalletResponse) error
 }
 
 const (
@@ -53,6 +54,9 @@ const (
 
 	// PrivateTopicPosition :
 	PrivateTopicPosition = "position"
+
+	// PrivateTopicWallet :
+	PrivateTopicWallet = "wallet"
 )
 
 // PrivateParamKey :

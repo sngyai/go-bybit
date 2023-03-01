@@ -48,5 +48,6 @@ func (s *WebsocketClientV5) Private() (PrivateServiceI, error) {
 		connection:       c,
 		paramOrderMap:    map[PrivateParamKey]func(PrivateOrderResponse) error{},
 		paramPositionMap: map[PrivateParamKey]func(PrivatePositionResponse) error{},
+		paramWalletMap:   map[V5WebsocketPrivateParamKey]func(PrivateWalletResponse) error{},
 	}, nil
 }

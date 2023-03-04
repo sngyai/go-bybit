@@ -124,7 +124,7 @@ func (s *PrivateService) removeParamOrderFunc(key PrivateParamKey) {
 func (s *PrivateService) retrieveOrderFunc(key PrivateParamKey) (func(PrivateOrderResponse) error, error) {
 	f, exist := s.paramOrderMap[key]
 	if !exist {
-		return nil, errors.New("func not found")
+		return nil, errors.New("order func not found")
 	}
 	return f, nil
 }

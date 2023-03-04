@@ -117,7 +117,7 @@ func (s *PrivateService) removeParamPositionFunc(key PrivateParamKey) {
 func (s *PrivateService) retrievePositionFunc(key PrivateParamKey) (func(PrivatePositionResponse) error, error) {
 	f, exist := s.paramPositionMap[key]
 	if !exist {
-		return nil, errors.New("func not found")
+		return nil, errors.New("position func not found")
 	}
 	return f, nil
 }

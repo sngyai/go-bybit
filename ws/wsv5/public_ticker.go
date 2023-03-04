@@ -114,7 +114,7 @@ func (s *PublicService) removeParamTickersFunc(key PublicTickersParamKey) {
 func (s *PublicService) retrieveTickersFunc(key PublicTickersParamKey) (func(PublicTickersResponse) error, error) {
 	f, exist := s.paramTickersMap[key]
 	if !exist {
-		return nil, errors.New("func not found")
+		return nil, errors.New("tickers func not found")
 	}
 	return f, nil
 }

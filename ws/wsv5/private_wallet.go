@@ -117,7 +117,7 @@ func (s *PrivateService) removeParamWalletFunc(key PrivateParamKey) {
 func (s *PrivateService) retrieveWalletFunc(key PrivateParamKey) (func(PrivateWalletResponse) error, error) {
 	f, exist := s.paramWalletMap[key]
 	if !exist {
-		return nil, errors.New("func not found")
+		return nil, errors.New("wallet func not found")
 	}
 	return f, nil
 }

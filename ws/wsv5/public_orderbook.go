@@ -167,7 +167,7 @@ func (s *PublicService) removeParamOrderBookFunc(key PublicOrderBookParamKey) {
 func (s *PublicService) retrieveOrderBookFunc(key PublicOrderBookParamKey) (func(PublicOrderBookResponse) error, error) {
 	f, exist := s.paramOrderBookMap[key]
 	if !exist {
-		return nil, errors.New("func not found")
+		return nil, errors.New("orderbook func not found")
 	}
 	return f, nil
 }

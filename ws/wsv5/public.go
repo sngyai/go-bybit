@@ -168,7 +168,8 @@ func (s *PublicService) Run() error {
 		}
 		f, err := s.retrieveTickersFunc(resp.Key())
 		if err != nil {
-			return err
+			log.Printf("Received unsubscribed message, topic: %s, message: %s", topic, message)
+			return nil
 		}
 		if err := f(resp); err != nil {
 			return err

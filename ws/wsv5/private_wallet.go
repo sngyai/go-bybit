@@ -54,14 +54,14 @@ func (s *PrivateService) SubscribeWallet(
 
 // PrivateWalletResponse :
 type PrivateWalletResponse struct {
-	ID           string                         `json:"id"`
-	Topic        PrivateTopic                   `json:"topic"`
-	CreationTime int64                          `json:"creationTime"`
-	Data         []V5WebsocketPrivateWalletData `json:"data"`
+	ID           string              `json:"id"`
+	Topic        PrivateTopic        `json:"topic"`
+	CreationTime int64               `json:"creationTime"`
+	Data         []PrivateWalletData `json:"data"`
 }
 
-// V5WebsocketPrivateWalletData :
-type V5WebsocketPrivateWalletData struct {
+// PrivateWalletData :
+type PrivateWalletData struct {
 	AccountIMRate          string              `json:"accountIMRate"`
 	AccountMMRate          string              `json:"accountMMRate"`
 	TotalEquity            string              `json:"totalEquity"`

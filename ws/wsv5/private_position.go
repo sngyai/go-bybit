@@ -54,14 +54,14 @@ func (s *PrivateService) SubscribePosition(
 
 // PrivatePositionResponse :
 type PrivatePositionResponse struct {
-	ID           string                           `json:"id"`
-	Topic        PrivateTopic                     `json:"topic"`
-	CreationTime int64                            `json:"creationTime"`
-	Data         []V5WebsocketPrivatePositionData `json:"data"`
+	ID           string                `json:"id"`
+	Topic        PrivateTopic          `json:"topic"`
+	CreationTime int64                 `json:"creationTime"`
+	Data         []PrivatePositionData `json:"data"`
 }
 
-// V5WebsocketPrivatePositionData :
-type V5WebsocketPrivatePositionData struct {
+// PrivatePositionData :
+type PrivatePositionData struct {
 	AutoAddMargin   int              `json:"autoAddMargin"`
 	PositionIdx     int              `json:"positionIdx"`
 	TpSlMode        bybit.TpSlMode   `json:"tpSlMode"`

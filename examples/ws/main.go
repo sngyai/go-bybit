@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/sngyai/go-bybit"
@@ -30,10 +31,11 @@ func main() {
 	//	return
 	//}
 
-	err := v5Multiple(wsClient)
+	err := v5Single(wsClient)
 	if err != nil {
 		return
 	}
+	time.Sleep(3600 * time.Second)
 }
 
 func v1Single(wsClient *ws.WebSocketClient) error {
@@ -112,19 +114,23 @@ func v5Single(wsClient *ws.WebSocketClient) error {
 	errHandler := func(isWebsocketClosed bool, err error) {
 		fmt.Printf("handle ws failed, isWebsocketClosed: %b, err: %v", isWebsocketClosed, err)
 	}
-	svc.Start(context.Background(), errHandler)
+	go func() {
+		svc.Start(context.Background(), errHandler)
+		v5Single(wsClient)
+	}()
 	return nil
 }
 
 func v5Multiple(wsClient *ws.WebSocketClient) error {
 	var executors []ws.WebsocketExecutor
+	var unsubscribe1, unsubscribe2 func() error
 	svcRoot := wsv5.NewWSClient(wsClient)
 	{
 		svc, err := svcRoot.Public(bybit.CategoryV5Spot)
 		if err != nil {
 			return err
 		}
-		_, err = svc.SubscribeTickers(
+		unsubscribe1, err = svc.SubscribeTickers(
 			wsv5.PublicTickersParamKey{
 				Symbol: bybit.SymbolV5BTCUSDT,
 			},
@@ -142,7 +148,7 @@ func v5Multiple(wsClient *ws.WebSocketClient) error {
 		if err != nil {
 			return err
 		}
-		_, err = svc.SubscribeOrderBook(wsv5.PublicOrderBookParamKey{
+		unsubscribe2, err = svc.SubscribeOrderBook(wsv5.PublicOrderBookParamKey{
 			Depth:  50,
 			Symbol: bybit.SymbolV5BTCUSDT,
 		},
@@ -155,6 +161,15 @@ func v5Multiple(wsClient *ws.WebSocketClient) error {
 		}
 		executors = append(executors, svc)
 	}
+
+	go func() {
+		time.Sleep(3 * time.Second)
+		unsubscribe1()
+		fmt.Println("UnsubscribeTickers")
+		time.Sleep(3 * time.Second)
+		unsubscribe2()
+		fmt.Println("UnsubscribeOrderBook")
+	}()
 
 	wsClient.Start(context.Background(), executors)
 

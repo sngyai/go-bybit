@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/gorilla/websocket"
+	"github.com/sngyai/go-bybit"
 )
 
 // SubscribeOrder :
@@ -43,7 +44,7 @@ func (s *PrivateService) SubscribeOrder(
 		if err != nil {
 			return err
 		}
-		if err := s.connection.WriteMessage(websocket.TextMessage, []byte(buf)); err != nil {
+		if err := s.connection.WriteMessage(websocket.TextMessage, buf); err != nil {
 			return err
 		}
 		s.removeParamOrderFunc(key)
@@ -61,41 +62,41 @@ type PrivateOrderResponse struct {
 
 // PrivateOrderData :
 type PrivateOrderData struct {
-	AvgPrice           string `json:"avgPrice"`
-	BlockTradeID       string `json:"blockTradeId"`
-	CancelType         string `json:"cancelType"`
-	Category           string `json:"category"`
-	CloseOnTrigger     bool   `json:"closeOnTrigger"`
-	CreatedTime        string `json:"createdTime"`
-	CumExecFee         string `json:"cumExecFee"`
-	CumExecQty         string `json:"cumExecQty"`
-	CumExecValue       string `json:"cumExecValue"`
-	LeavesQty          string `json:"leavesQty"`
-	LeavesValue        string `json:"leavesValue"`
-	OrderID            string `json:"orderId"`
-	OrderIv            string `json:"orderIv"`
-	IsLeverage         string `json:"isLeverage"`
-	LastPriceOnCreated string `json:"lastPriceOnCreated"`
-	OrderStatus        string `json:"orderStatus"`
-	OrderLinkID        string `json:"orderLinkId"`
-	OrderType          string `json:"orderType"`
-	PositionIdx        int    `json:"positionIdx"`
-	Price              string `json:"price"`
-	Qty                string `json:"qty"`
-	ReduceOnly         bool   `json:"reduceOnly"`
-	RejectReason       string `json:"rejectReason"`
-	Side               string `json:"side"`
-	SlTriggerBy        string `json:"slTriggerBy"`
-	StopLoss           string `json:"stopLoss"`
-	StopOrderType      string `json:"stopOrderType"`
-	Symbol             string `json:"symbol"`
-	TakeProfit         string `json:"takeProfit"`
-	TimeInForce        string `json:"timeInForce"`
-	TpTriggerBy        string `json:"tpTriggerBy"`
-	TriggerBy          string `json:"triggerBy"`
-	TriggerDirection   int    `json:"triggerDirection"`
-	TriggerPrice       string `json:"triggerPrice"`
-	UpdatedTime        string `json:"updatedTime"`
+	AvgPrice           string            `json:"avgPrice"`
+	BlockTradeID       string            `json:"blockTradeId"`
+	CancelType         string            `json:"cancelType"`
+	Category           string            `json:"category"`
+	CloseOnTrigger     bool              `json:"closeOnTrigger"`
+	CreatedTime        string            `json:"createdTime"`
+	CumExecFee         string            `json:"cumExecFee"`
+	CumExecQty         string            `json:"cumExecQty"`
+	CumExecValue       string            `json:"cumExecValue"`
+	LeavesQty          string            `json:"leavesQty"`
+	LeavesValue        string            `json:"leavesValue"`
+	OrderID            string            `json:"orderId"`
+	OrderIv            string            `json:"orderIv"`
+	IsLeverage         string            `json:"isLeverage"`
+	LastPriceOnCreated string            `json:"lastPriceOnCreated"`
+	OrderStatus        string            `json:"orderStatus"`
+	OrderLinkID        string            `json:"orderLinkId"`
+	OrderType          bybit.OrderType   `json:"orderType"`
+	PositionIdx        int               `json:"positionIdx"`
+	Price              string            `json:"price"`
+	Qty                string            `json:"qty"`
+	ReduceOnly         bool              `json:"reduceOnly"`
+	RejectReason       string            `json:"rejectReason"`
+	Side               bybit.Side        `json:"side"`
+	SlTriggerBy        string            `json:"slTriggerBy"`
+	StopLoss           string            `json:"stopLoss"`
+	StopOrderType      string            `json:"stopOrderType"`
+	Symbol             bybit.SymbolV5    `json:"symbol"`
+	TakeProfit         string            `json:"takeProfit"`
+	TimeInForce        bybit.TimeInForce `json:"timeInForce"`
+	TpTriggerBy        string            `json:"tpTriggerBy"`
+	TriggerBy          string            `json:"triggerBy"`
+	TriggerDirection   int               `json:"triggerDirection"`
+	TriggerPrice       string            `json:"triggerPrice"`
+	UpdatedTime        string            `json:"updatedTime"`
 }
 
 // Key :

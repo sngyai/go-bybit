@@ -62,48 +62,21 @@ type PrivateWalletResponse struct {
 
 // V5WebsocketPrivateWalletData :
 type V5WebsocketPrivateWalletData struct {
-	AccountIMRate          string                        `json:"accountIMRate"`
-	AccountMMRate          string                        `json:"accountMMRate"`
-	TotalEquity            string                        `json:"totalEquity"`
-	TotalWalletBalance     string                        `json:"totalWalletBalance"`
-	TotalMarginBalance     string                        `json:"totalMarginBalance"`
-	TotalAvailableBalance  string                        `json:"totalAvailableBalance"`
-	TotalPerpUPL           string                        `json:"totalPerpUPL"`
-	TotalInitialMargin     string                        `json:"totalInitialMargin"`
-	TotalMaintenanceMargin string                        `json:"totalMaintenanceMargin"`
-	AccountType            bybit.AccountType             `json:"accountType"`
-	Coins                  V5WebsocketPrivateWalletCoins `json:"coin"`
+	AccountIMRate          string              `json:"accountIMRate"`
+	AccountMMRate          string              `json:"accountMMRate"`
+	TotalEquity            string              `json:"totalEquity"`
+	TotalWalletBalance     string              `json:"totalWalletBalance"`
+	TotalMarginBalance     string              `json:"totalMarginBalance"`
+	TotalAvailableBalance  string              `json:"totalAvailableBalance"`
+	TotalPerpUPL           string              `json:"totalPerpUPL"`
+	TotalInitialMargin     string              `json:"totalInitialMargin"`
+	TotalMaintenanceMargin string              `json:"totalMaintenanceMargin"`
+	AccountType            bybit.AccountType   `json:"accountType"`
+	Coins                  []PrivateWalletCoin `json:"coin"`
 }
 
-// V5WebsocketPrivateWalletCoins :
-type V5WebsocketPrivateWalletCoins []V5WebsocketPrivateWalletCoin
-
-// UnmarshalJSON :
-// for Unified, an array will be given
-// for Contract, a single object will be given
-func (c *V5WebsocketPrivateWalletCoins) UnmarshalJSON(data []byte) error {
-	var parsedData interface{}
-	if err := json.Unmarshal(data, &parsedData); err != nil {
-		return err
-	}
-	if _, isArray := parsedData.([]interface{}); isArray {
-		var coins []V5WebsocketPrivateWalletCoin
-		if err := json.Unmarshal(data, &coins); err != nil {
-			return err
-		}
-		*c = coins
-	} else {
-		var coin V5WebsocketPrivateWalletCoin
-		if err := json.Unmarshal(data, &coin); err != nil {
-			return err
-		}
-		*c = V5WebsocketPrivateWalletCoins{coin}
-	}
-	return nil
-}
-
-// V5WebsocketPrivateWalletCoin :
-type V5WebsocketPrivateWalletCoin struct {
+// PrivateWalletCoin :
+type PrivateWalletCoin struct {
 	Coin                bybit.Coin `json:"coin"`
 	Equity              string     `json:"equity"`
 	UsdValue            string     `json:"usdValue"`

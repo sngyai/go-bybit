@@ -141,41 +141,43 @@ type V5GetOpenOrdersResponse struct {
 type V5GetOpenOrdersResult struct {
 	Category       bybit.CategoryV5 `json:"category"`
 	NextPageCursor string           `json:"nextPageCursor"`
-	List           []struct {
-		Symbol             bybit.SymbolV5    `json:"symbol"`
-		OrderType          bybit.OrderType   `json:"orderType"`
-		OrderLinkID        string            `json:"orderLinkId"`
-		OrderID            string            `json:"orderId"`
-		CancelType         string            `json:"cancelType"`
-		AvgPrice           string            `json:"avgPrice"`
-		StopOrderType      string            `json:"stopOrderType"`
-		LastPriceOnCreated string            `json:"lastPriceOnCreated"`
-		OrderStatus        bybit.OrderStatus `json:"orderStatus"`
-		TakeProfit         string            `json:"takeProfit"`
-		CumExecValue       string            `json:"cumExecValue"`
-		TriggerDirection   int               `json:"triggerDirection"`
-		IsLeverage         string            `json:"isLeverage"`
-		RejectReason       string            `json:"rejectReason"`
-		Price              string            `json:"price"`
-		OrderIv            string            `json:"orderIv"`
-		CreatedTime        string            `json:"createdTime"`
-		TpTriggerBy        string            `json:"tpTriggerBy"`
-		PositionIdx        int               `json:"positionIdx"`
-		TimeInForce        bybit.TimeInForce `json:"timeInForce"`
-		LeavesValue        string            `json:"leavesValue"`
-		UpdatedTime        string            `json:"updatedTime"`
-		Side               bybit.Side        `json:"side"`
-		TriggerPrice       string            `json:"triggerPrice"`
-		CumExecFee         string            `json:"cumExecFee"`
-		LeavesQty          string            `json:"leavesQty"`
-		SlTriggerBy        string            `json:"slTriggerBy"`
-		CloseOnTrigger     bool              `json:"closeOnTrigger"`
-		CumExecQty         string            `json:"cumExecQty"`
-		ReduceOnly         bool              `json:"reduceOnly"`
-		Qty                string            `json:"qty"`
-		StopLoss           string            `json:"stopLoss"`
-		TriggerBy          bybit.TriggerBy   `json:"triggerBy"`
-	} `json:"list"`
+	List           []V5GetOpenOrder `json:"list"`
+}
+
+type V5GetOpenOrder struct {
+	Symbol             bybit.SymbolV5    `json:"symbol"`
+	OrderType          bybit.OrderType   `json:"orderType"`
+	OrderLinkID        string            `json:"orderLinkId"`
+	OrderID            string            `json:"orderId"`
+	CancelType         string            `json:"cancelType"`
+	AvgPrice           string            `json:"avgPrice"`
+	StopOrderType      string            `json:"stopOrderType"`
+	LastPriceOnCreated string            `json:"lastPriceOnCreated"`
+	OrderStatus        bybit.OrderStatus `json:"orderStatus"`
+	TakeProfit         string            `json:"takeProfit"`
+	CumExecValue       string            `json:"cumExecValue"`
+	TriggerDirection   int               `json:"triggerDirection"`
+	IsLeverage         string            `json:"isLeverage"`
+	RejectReason       string            `json:"rejectReason"`
+	Price              string            `json:"price"`
+	OrderIv            string            `json:"orderIv"`
+	CreatedTime        string            `json:"createdTime"`
+	TpTriggerBy        string            `json:"tpTriggerBy"`
+	PositionIdx        int               `json:"positionIdx"`
+	TimeInForce        bybit.TimeInForce `json:"timeInForce"`
+	LeavesValue        string            `json:"leavesValue"`
+	UpdatedTime        string            `json:"updatedTime"`
+	Side               bybit.Side        `json:"side"`
+	TriggerPrice       string            `json:"triggerPrice"`
+	CumExecFee         string            `json:"cumExecFee"`
+	LeavesQty          string            `json:"leavesQty"`
+	SlTriggerBy        string            `json:"slTriggerBy"`
+	CloseOnTrigger     bool              `json:"closeOnTrigger"`
+	CumExecQty         string            `json:"cumExecQty"`
+	ReduceOnly         bool              `json:"reduceOnly"`
+	Qty                string            `json:"qty"`
+	StopLoss           string            `json:"stopLoss"`
+	TriggerBy          bybit.TriggerBy   `json:"triggerBy"`
 }
 
 // GetOpenOrders :

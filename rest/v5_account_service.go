@@ -30,19 +30,19 @@ type V5WalletBalanceResult struct {
 
 // V5WalletBalanceCoin :
 type V5WalletBalanceCoin struct {
-	AvailableToBorrow   string `json:"availableToBorrow"`
-	AccruedInterest     string `json:"accruedInterest"`
-	AvailableToWithdraw string `json:"availableToWithdraw"`
-	TotalOrderIM        string `json:"totalOrderIM"`
-	Equity              string `json:"equity"`
-	TotalPositionMM     string `json:"totalPositionMM"`
-	UsdValue            string `json:"usdValue"`
-	UnrealisedPnl       string `json:"unrealisedPnl"`
-	BorrowAmount        string `json:"borrowAmount"`
-	TotalPositionIM     string `json:"totalPositionIM"`
-	WalletBalance       string `json:"walletBalance"`
-	CumRealisedPnl      string `json:"cumRealisedPnl"`
-	Coin                string `json:"coin"`
+	AvailableToBorrow   string     `json:"availableToBorrow"`
+	AccruedInterest     string     `json:"accruedInterest"`
+	AvailableToWithdraw string     `json:"availableToWithdraw"`
+	TotalOrderIM        string     `json:"totalOrderIM"`
+	Equity              string     `json:"equity"`
+	TotalPositionMM     string     `json:"totalPositionMM"`
+	UsdValue            string     `json:"usdValue"`
+	UnrealisedPnl       string     `json:"unrealisedPnl"`
+	BorrowAmount        string     `json:"borrowAmount"`
+	TotalPositionIM     string     `json:"totalPositionIM"`
+	WalletBalance       string     `json:"walletBalance"`
+	CumRealisedPnl      string     `json:"cumRealisedPnl"`
+	Coin                bybit.Coin `json:"coin"`
 }
 
 // V5WalletBalanceList :
